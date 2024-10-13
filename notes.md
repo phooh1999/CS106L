@@ -111,3 +111,27 @@ int main() {
 ```
 
 # 4. Streams
+
+```cpp
+#include <sstream> // for stringstream
+#include <iostream> // for cout
+
+using namespace std;
+
+int main() {
+    ostringstream oss("Ito En Green Tea ");
+    // ostringstream oss("Ito En Green Tea ", stringstream::ate);
+    cout << oss.str() << endl;
+    // Ito En Green Tea
+    
+    oss << 16.9 << " Ounce ";
+    cout << oss.str() << endl;
+    // 16.9 Ounce n Tea
+
+    oss << "(Pack of " << 12 << ")";
+    cout << oss.str() << endl;
+    // 16.9 Ounce (Pack of 12)
+
+    return 0;
+}
+```
