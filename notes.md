@@ -139,3 +139,30 @@ int main() {
 # 6. Iterators
 
 Some operations on some containers may invalidate iterators!!!
+
+# 7. Templates
+
+## Variadic Templates
+
+Varadic Templates can use compile-time recursion.
+
+`f(h(args...) + args...);`
+
+expands to
+
+`f(h(E1,E2,E3) + E1, h(E1,E2,E3) + E2, h(E1,E2,E3) + E3)`
+
+```cpp
+template <typename T, typename... Ts>
+auto my_min(T num, Ts... args) {
+  auto min = my_min(args...);
+  if (num < min) min = num;
+  return min;
+}
+
+template <typename T>
+auto my_min(T num) {
+    return num;
+}
+```
+
