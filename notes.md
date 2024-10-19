@@ -135,3 +135,7 @@ int main() {
     return 0;
 }
 ```
+
+# 6. Iterators
+
+Some operations on some containers may invalidate iterators!!!
