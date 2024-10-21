@@ -166,3 +166,98 @@ auto my_min(T num) {
 }
 ```
 
+## Function objects("Functors")
+
+```cpp
+class GreaterThan{
+    public:
+        GreaterThan(int limit) : limit(limit) {}
+        bool operator() {int val} {return val >= limit};
+    private:
+        int limit;
+}
+```
+
+Key idea: create an object which can act like a function since it has an () operator.
+
+## Lambda functions
+
+```cpp
+int main() {
+    vector<int> vec{1, 3, 5, 7, 9};
+    int limit = 5;
+    auto is_less_than_limit = [limit](auto val) {
+        return val < limit;
+    }
+    count_occurences(vec.begin(), vec.end(), is_less_than_limit);
+    return 0;
+}
+```
+
+- 1st `auto`: don't know the type, ask the compiler
+- `limit`: capture clause, gives access to outside variables
+- 2nd `auto`: parameter list, can use `auto`
+- `-> bool`: return type, optional
+
+Accessible variables inside lambda limited to capture clause and parameter list.
+```cpp
+auto is_less_than_limit = [limit](auto val) -> bool {
+    return val < limit;
+}
+```
+
+You can also capture by reference.
+```cpp
+set<string> teas{“black”, “green”, “oolong”};
+string banned = “boba”; // pls … this is not a tea
+auto liked_by_Avery = [&teas, banned](auto type) {
+    return teas.count(type) && type != banned;
+};
+```
+
+You can also capture everything by value or reference.
+```cpp
+// capture all by value, except teas is by reference
+auto func1 = [=, &teas](parameters) -> return_value {
+    // body
+};
+
+// capture all by reference, except banned is by value
+auto func2 = [&, banned](parameters) -> return_value {
+    // body
+};
+```
+
+- Lambdas are function objects that can capture variables that are not parameter.
+- Lambdas can be passed into template functions as a predicate.
+
+## SFINAE
+- Substitution Failure Is Not An Error
+- When substituting the deduced types fails (in the immediate
+context) because the type doesn't satisfy implicit interfaces, this
+does not result in a compile error.
+- Instead, this candidate function is not part of the viable set.
+The other candidates will still be processed.
+
+Very common SFINAE template: use this overload if [expression] compiles
+```cpp
+template <typename T>
+auto function(const T& a)
+        -> decltype((void) [expression], [return type]()) {
+    // function implementation
+}
+```
+
+This template is valid if a.size() compiles.
+```cpp
+template <typename T>
+auto print_size(const T& a)
+        -> decltype((void) a.size(), size_t()) {
+    cout << “printing with size member function: ”;
+    cout << a.size() << endl;
+    return a.size();
+}
+// T = int (fail)
+// T = vector<int> (success)
+// T = vector<int>* (fail)
+```
