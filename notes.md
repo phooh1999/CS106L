@@ -261,3 +261,52 @@ auto print_size(const T& a)
 // T = vector<int> (success)
 // T = vector<int>* (fail)
 ```
+
+# 8. Functions and Algorithms
+
+- We need a special iterator `back_inserter()` which extends the container.
+```cpp
+string dep = ”CS”;
+auto isDep = [dep](const auto& course) {
+    return course.name.size() >= dep.size &&
+            course.substr(0, dep.size()) == dep;
+};
+
+std::copy_if(csCourses.begin(), csCourses.end(),
+        back_inserter(csCourses), isDep);
+```
+
+- Challenge Problem: Implement the logic of remove from before!
+```cpp
+template <typename ForwardIt, typename T>
+ForwardIt remove(ForwardIt first, ForwardIt last,
+                    const T& value) {
+    first = std::find(first, last, value);
+    if (first != last)
+        for(ForwardIt i = first; ++i != last; )
+            if (!(*i == value))
+                *first++ = std::move(*i);
+    return first;
+}
+```
+
+- but `std::remove` does not change the size of the container!
+
+erase-remove idiom
+```cpp
+v.erase(
+    std::remove_if(v.begin(), v.end(), pred),
+    v.end()
+);
+```
+
+- Stream iterators read from istreams or write to ostreams!
+```cpp
+std::cout << "odd numbers in to_vector are: ";
+std::copy_if(to_vector.begin(), to_vector.end(),
+            std::ostream_iterator<int>(std::cout, " "),
+            [](int x) { return x % 2 != 0; });
+std::cout << '\n';
+```
+
+- [`std::bind`](https://en.cppreference.com/w/cpp/utility/functional/bind)
