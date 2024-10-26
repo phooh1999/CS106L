@@ -310,3 +310,16 @@ std::cout << '\n';
 ```
 
 - [`std::bind`](https://en.cppreference.com/w/cpp/utility/functional/bind)
+
+# 9. STL Summary
+
+# 10. Classes and Const Correctness
+
+## Challenge
+
+`const int* const myClassMethod(const int* const &param) const;`
+
+(my solution...)
+- myClassMethod is a const function
+- it takes a const reference `param` to a pointer which points to a const int
+- it returns a const pointer which points to a const int
