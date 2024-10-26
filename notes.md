@@ -330,3 +330,14 @@ its const methods
 - myClassMethod is a const method
 - it takes a const reference `param` to a pointer which points to a const int
 - it returns a const pointer which points to a const int
+
+# 11. Operators
+
+## General rule of thumb: member vs. non-member
+
+1. Some operators must be implemented as members ( eg. `[]`, `()`, `->`, `=` ) due to C++ semantics.
+2. Some must be implemented as non-members ( eg. `<<`, if you are writing class for rhs, not lhs).
+3. If unary operator ( eg. `++` ), implement as member.
+4. If binary operator and treats both operands equally (eg. both unchanged) implement as non-member (maybe `friend`). Examples: `+`, `<`.
+5. If binary operator and not both equally (changes lhs), implement as member (allows easy access to lhs private members). Examples: `+=`.
+
