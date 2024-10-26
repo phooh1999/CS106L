@@ -315,11 +315,18 @@ std::cout << '\n';
 
 # 10. Classes and Const Correctness
 
+- const reference = a reference that cannot be used to
+modify the object that is being referenced
+- const method = a method of a class that can't change any
+class variables and can only call other const methods
+- const object = an object declared as const that can only call
+its const methods
+
 ## Challenge
 
 `const int* const myClassMethod(const int* const &param) const;`
 
 (my solution...)
-- myClassMethod is a const function
+- myClassMethod is a const method
 - it takes a const reference `param` to a pointer which points to a const int
 - it returns a const pointer which points to a const int
