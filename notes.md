@@ -341,3 +341,56 @@ its const methods
 4. If binary operator and treats both operands equally (eg. both unchanged) implement as non-member (maybe `friend`). Examples: `+`, `<`.
 5. If binary operator and not both equally (changes lhs), implement as member (allows easy access to lhs private members). Examples: `+=`.
 
+## Principle of Least Astonishment (POLA)
+
+1. Design operators primarily to mimic conventional usage.
+2. Use nonmember functions for symmetric operators.
+3. Always provide all out of a set of related operators.
+
+# 12. Special Member Functions
+
+## Prefix vs. Postfix
+
+```cpp
+iterator& iterator::operator++(); // prefix
+
+iterator iterator::operator++(int); // postfix
+```
+
+## What are the things you have to do in an assignment operator?
+
+1. Check for self-assignment.
+2. Make sure you to when to free existing members.
+3. Copy assign each automatically assignable member.
+4. Manually copy all other members.
+5. Return a reference to itself (that was just reassigned).
+
+## You can prevent copies from being made by explicitly deleting these operations.
+
+```cpp
+class PasswordManager {
+public:
+    PasswordManager();
+    ~PasswordManager();
+    // other methods
+    PasswordManager(const PasswordManager& rhs) = delete;
+    PasswordManager& operator=(const PasswordManager& rhs) = delete;
+private:
+    // other stuff
+}
+```
+
+## rule of zero / rule of three
+
+If the default copy constructor, assignment, and destructor work, then use the default ones and don't declare your own.
+
+If you explicitly define (or delete) a copy constructor, copy assignment, or destructor, you should define (or delete) all three.
+
+## copy elision and return value optimization (RVO)
+
+Copy elision is an optimization that the compiler makes to skip unnecessary copies.
+
+Copy elision is guaranteed by compiler in C++17.
+
+# 13. Move Semantics
+
