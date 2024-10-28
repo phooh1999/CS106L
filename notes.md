@@ -394,3 +394,74 @@ Copy elision is guaranteed by compiler in C++17.
 
 # 13. Move Semantics
 
+- An R-value reference is an alias to an R-value!!!
+- BUT the R-value reference itself is an L-value!!!
+
+```cpp
+vector(vector<T>&& other) :
+    _elems(std::move(other._elems)),
+    _size(std::move(other._size)),
+    _capacity(std::move(other._capacity)) {
+
+    other._elems = nullptr;
+}
+
+vector<T>& operator=(vector<T>&& rhs) {
+    if (this != &rhs) return *this;
+    delete[] elems;
+    _size = std::move(rhs._size);
+    _capacity = std::move(rhs._capacity);
+    _elems = std::move(rhs._elems);
+    rhs._elems = nullptr;
+    return *this;
+}
+```
+
+`rhs` is L-value binds to an R-value, use `std::move` to force it to be an R-value
+
+`rhs.elems = nullptr` is super important, otherwise we will get the double `free`
+
+`std::move` itself doesn’t move anything, it is an unconditional cast to an r-value. The real move happens during assignment `_elems = std::move(rhs._elems);`
+
+## Non-idiomatic use (do not use!) std::moving the return value
+
+```cpp
+vector<string>&& findAllWords(size_t size) {
+    vector<string> words(size, “Ito”);
+    return std::move(words);
+}
+```
+
+The compiler is great at optimizing return values. Don’t interfere with it.
+```cpp
+vector<string> findAllWords(size_t size) {
+    vector<string> words(size, “Ito”);
+    return words;
+}
+```
+
+## Rule of Five
+
+If you explicitly define (or delete) a copy constructor, copy assignment, move constructor, move assignment, or destructor, you should define (or delete) all five.
+
+
+The fact that you defined one of these means one of your members has ownership issues that need to be resolved.
+
+## perfect forwarding and emplace_back
+
+```cpp
+template <typename T1, typename T2>
+std::pair<T1, T2> make_pair(T1&& a, T2&& b) {
+    return pair<T1, T2>{std::forward<T1>(a),
+                        std::forward<T2>(b)};
+}
+```
+Conditional cast to an r-value, depending whether a and b were r-values before the function call.
+
+**Reason**:
+- An R-value reference is an alias to an R-value!!!
+- BUT the R-value reference itself is an L-value!!!
+- `pair<T1, T2>{a, b}` uses L-value construct
+- `pair<T1, T2>{std::move(a), std::move(b)}` uses R-value construct
+- we don't know whether parameter is a L or R-value, and we don't want to **overload every possible combination** of L and R-value reference parameters.
+- `std::forward<T1>(a)` depends on the parameter `a` before the function calls
