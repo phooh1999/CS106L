@@ -311,8 +311,6 @@ std::cout << '\n';
 
 - [`std::bind`](https://en.cppreference.com/w/cpp/utility/functional/bind)
 
-# 9. STL Summary
-
 # 10. Classes and Const Correctness
 
 - const reference = a reference that cannot be used to
@@ -326,9 +324,8 @@ its const methods
 
 `const int* const myClassMethod(const int* const &param) const;`
 
-(my solution...)
-- myClassMethod is a const method
-- it takes a const reference `param` to a pointer which points to a const int
+- myClassMethod is a const member function
+- it takes a reference `param` binding to a const pointer which points to a const int
 - it returns a const pointer which points to a const int
 
 # 11. Operators
@@ -465,3 +462,17 @@ Conditional cast to an r-value, depending whether a and b were r-values before t
 - `pair<T1, T2>{std::move(a), std::move(b)}` uses R-value construct
 - we don't know whether parameter is a L or R-value, and we don't want to **overload every possible combination** of L and R-value reference parameters.
 - `std::forward<T1>(a)` depends on the parameter `a` before the function calls
+
+# 14. Template Classes
+
+[operator overloading](https://en.cppreference.com/w/cpp/language/operators)
+
+[isocpp](https://isocpp.org/)
+
+## Summary of Template Classes
+
+- Syntax-wise pretty much the same as functions
+- You must either:
+  - Put interface + implementation in the .h file (standard and very
+common)
+  - Separate .h and .cpp, but include .cpp at the end of .cpp (not common, but we'll do it on A2 and in this class)
