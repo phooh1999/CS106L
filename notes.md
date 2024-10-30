@@ -606,3 +606,8 @@ Here, weak_ptr comes to the rescue by providing a way to break these circular re
 ### `std::unique_ptr<T> up = std::make_unique<T>();`
 ### `std::shared_ptr<T> sp = std::make_shared<T>();`
 ### `std::weak_ptr<T> wp = sp;`
+
+# 16. Multithreading
+
+[Multi-threading](https://legacy.cplusplus.com/reference/multithreading/)
+
