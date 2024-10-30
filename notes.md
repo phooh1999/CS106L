@@ -476,3 +476,133 @@ Conditional cast to an r-value, depending whether a and b were r-values before t
   - Put interface + implementation in the .h file (standard and very
 common)
   - Separate .h and .cpp, but include .cpp at the end of .cpp (not common, but we'll do it on A2 and in this class)
+
+# 15. RAII and Smart Pointers
+
+## Aside: Exceptions
+
+Exceptions are a way to transfer control and information to a (potential) exception handler.
+
+```cpp
+try {
+    // code associated with exception handler
+} catch ( [exception type] e ) {
+    // exception handler
+} catch ( [exception type] e ) {
+    // exception handler
+} // etc.
+```
+
+## RAII Resource Acquisition Is Initialization
+
+All resources should be acquired in the constructor.
+
+All resources should be released in the destructor.
+
+```cpp
+void printFile () {
+    ifstream input("hamlet.txt");
+    string line;
+    while (getline(input, line)) { // might throw exception
+        cout << line << endl;
+    }
+    // no close call needed!
+} // stream destructor, releases access to file
+```
+
+another example
+```cpp
+void cleanDatabase (mutex& databaseLock,
+                    map<int, int>& database) {
+    databaseLock.lock();
+    // other threads will not modify database
+    // modify the database
+    // if exception thrown, mutex never unlocked!
+    databaseLock.unlock();
+}
+```
+
+The fix: an object whose sole job is to release the resource when it goes out of scope.
+```cpp
+void cleanDatabase (mutex& databaseLock,
+                    map<int, int>& database) {
+    lock_guard<mutex> lock(databaseLock);
+    // other threads will not modify database
+    // modify the database
+    // if exception thrown, that’s fine!
+    // no release call needed
+} // lock always unlocked when function exits.
+```
+
+Here’s a non-template version.
+```cpp
+class lock_guard {
+public:
+    lock_guard(mutex& lock) : acquired_lock(lock) {
+        acquired_lock.lock();
+    }
+    
+    ~lock_guard() {
+        acquired_lock.unlock();
+    }
+private:
+    mutex& acquired_lock;
+}
+```
+
+## Smart Pointers
+
+```cpp
+std::unique_ptr
+std::shared_ptr
+std::weak_ptr
+```
+
+### `std::unique_ptr`
+
+Uniquely owns its resource and deletes it when the object is destroyed.
+
+Cannot be copied (but can be moved, if non-const)!
+
+```cpp
+void rawPtrFn () {
+    std::unique_ptr<Node> n(new Node);
+    // do some stuff with n
+} // Freed!
+```
+
+```cpp
+// Delete the copy constructor and assignment!
+unique_ptr(unique_ptr& u) = delete;
+unique_ptr& operator=(unique_ptr& r) = delete;
+```
+
+### `std::shared_ptr`
+
+Resource can be stored by any number of shared_ptrs.
+
+Deleted when none of them point to it.
+
+```cpp
+{
+    std::shared_ptr<int> p1(new int);
+    // Use p1
+    {
+        std::shared_ptr<int> p2 = p1;
+        // Use p1 and p2
+    }
+    // Use p1
+}
+// Object is freed!
+```
+
+### `std::weak_ptr`
+[weak_ptr in C++](https://www.geeksforgeeks.org/weak_ptr-in-cpp/)
+
+To understand the need for weak_ptr, we need to first understand the use case of shared_ptr which leads to a common problem called a circular link. It occurs when two or more objects reference each other using a shared_ptr. For example, if ObjectA has a shared_ptr to ObjectB and ObjectB has a shared_ptr to ObjectA, they form a circular reference. This can be problematic because neither ObjectA nor ObjectB will ever be deleted, leading to a memory leak.
+
+Here, weak_ptr comes to the rescue by providing a way to break these circular references. It allows you to create a non-own reference to an object managed by shared_ptr without affecting the reference count or preventing the object from being deleted.
+
+### `std::unique_ptr<T> up = std::make_unique<T>();`
+### `std::shared_ptr<T> sp = std::make_shared<T>();`
+### `std::weak_ptr<T> wp = sp;`
